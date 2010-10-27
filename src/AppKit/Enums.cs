@@ -1356,4 +1356,10 @@ namespace MonoMac.AppKit {
 	public enum NSProgressIndicatorStyle {
 		Bar, Spinning
 	}
+
+	public enum NSPopUpArrowPosition {
+		NoArrow = 0,
+    		AtCenter = 1,
+    		AtBottom = 2
+	}
 } 
