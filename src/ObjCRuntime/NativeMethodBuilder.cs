@@ -39,13 +39,15 @@ namespace MonoMac.ObjCRuntime {
 
 		private MethodInfo minfo;
 		private Type rettype;
+		private ParameterInfo [] parms;
 				
 		internal NativeMethodBuilder (MethodInfo minfo) {
 			ExportAttribute ea = (ExportAttribute) Attribute.GetCustomAttribute (minfo.GetBaseDefinition (), typeof (ExportAttribute));
-			ParameterInfo [] parms = minfo.GetParameters ();
 
 			if (ea == null)
 				throw new ArgumentException ("MethodInfo does not have a export attribute");
+
+			parms = minfo.GetParameters ();
 
 			rettype = ConvertReturnType (minfo.ReturnType);
 			// FIXME: We should detect if this is in a bound assembly or not and only alloc if needed
@@ -57,10 +59,13 @@ namespace MonoMac.ObjCRuntime {
 			ParameterTypes [1] = typeof (Selector);
 
 			for (int i = 0; i < parms.Length; i++) {
-				if (parms [i].ParameterType.IsByRef && (parms[i].ParameterType.IsSubclassOf (typeof (NSObject)) || parms[i].ParameterType == typeof (NSObject)))
+				if (parms [i].ParameterType.IsByRef && (parms[i].ParameterType.GetElementType ().IsSubclassOf (typeof (NSObject)) || parms[i].ParameterType.GetElementType () == typeof (NSObject)))
 					ParameterTypes [i + 2] = typeof (IntPtr).MakeByRefType ();
 				else
 					ParameterTypes [i + 2] = parms [i].ParameterType;
+				// The TypeConverter will emit a ^@ for a byref type that is a NSObject or NSObject subclass in this case
+				// If we passed the ParameterTypes [i+2] as would be more logical we would emit a ^^v for that case, which
+				// while currently acceptible isn't representative of what obj-c wants.
 				Signature += TypeConverter.ToNative (parms [i].ParameterType);
 			}
 			
@@ -74,13 +79,15 @@ namespace MonoMac.ObjCRuntime {
 			ILGenerator il = method.GetILGenerator ();
 			
 			
-			for (int i = 2; i < ParameterTypes.Length; i++)
-				if (ParameterTypes [i].IsByRef)
-					il.DeclareLocal (ParameterTypes [i].GetElementType ());
+			for (int i = 0; i < parms.Length; i++) {
+				if (parms [i].ParameterType.IsByRef && (parms[i].ParameterType.GetElementType ().IsSubclassOf (typeof (NSObject)) || parms[i].ParameterType.GetElementType () == typeof (NSObject))) {
+					il.DeclareLocal (parms [i].ParameterType.GetElementType ());
+				}
+			}
 
 #if !MONOMAC_BOOTSTRAP
 			for (int i = 2, j = 0; i < ParameterTypes.Length; i++) {
-				if (ParameterTypes [i].IsByRef) {
+				if (parms [i-2].ParameterType.IsByRef && (parms[i-2].ParameterType.GetElementType ().IsSubclassOf (typeof (NSObject)) || parms[i-2].ParameterType.GetElementType () == typeof (NSObject))) {
 					il.Emit (OpCodes.Ldarg, i);
 					il.Emit (OpCodes.Ldind_I);
 					il.Emit (OpCodes.Call, getobject);
@@ -93,7 +100,7 @@ namespace MonoMac.ObjCRuntime {
 				il.Emit (OpCodes.Ldarg_0);
 
 			for (int i = 2, j = 0; i < ParameterTypes.Length; i++) {
-				if (ParameterTypes [i].IsByRef)
+				if (parms [i-2].ParameterType.IsByRef && (parms[i-2].ParameterType.GetElementType ().IsSubclassOf (typeof (NSObject)) || parms[i-2].ParameterType.GetElementType () == typeof (NSObject)))
 					il.Emit (OpCodes.Ldloca_S, j++);
 				else
 					il.Emit (OpCodes.Ldarg, i);
@@ -103,7 +110,7 @@ namespace MonoMac.ObjCRuntime {
 
 #if !MONOMAC_BOOTSTRAP
 			for (int i = 2, j = 0; i < ParameterTypes.Length; i++) {
-				if (ParameterTypes [i].IsByRef) {
+				if (parms [i-2].ParameterType.IsByRef && (parms[i-2].ParameterType.GetElementType ().IsSubclassOf (typeof (NSObject)) || parms[i-2].ParameterType.GetElementType () == typeof (NSObject))) {
 					Label done = il.DefineLabel ();
 					il.Emit (OpCodes.Ldloc, j);
 					il.Emit (OpCodes.Brfalse, done);

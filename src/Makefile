@@ -31,10 +31,18 @@ CORE_SOURCES =					\
 # Sources that are not part of CORE_SOURCES or the generated templates
 MONOMAC_SOURCES = \
 	./Foundation/NSObjectMac.cs			\
+	./AppKit/ActionDispatcher.cs			\
 	./AppKit/NSApplication.cs			\
 	./AppKit/NSApplicationDelegate.cs		\
 	./AppKit/NSBitmapImageRep.cs			\
 	./AppKit/NSControl.cs				\
+	./AppKit/NSMenuItem.cs				\
+	./AppKit/NSActionCell.cs			\
+	./AppKit/NSButton.cs				\
+	./AppKit/NSLevelIndicator.cs				\
+	./AppKit/NSSegmentedControl.cs				\
+	./AppKit/NSPopUpButton.cs			\
+	./AppKit/NSPopUpButtonCell.cs			\
 	./AppKit/Functions.cs				\
 	./AppKit/NSOpenGLPixelFormat.cs			\
 	./AppKit/NSGraphics.cs				\
@@ -52,7 +60,7 @@ SOURCES = \
 
 DEFINES = -define:NET_2_0
 
-TARGETS = bmac.exe monomac.dll  parse.exe
+TARGETS = bmac.exe MonoMac.dll  parse.exe
 
 include Make.shared
 
@@ -95,10 +103,10 @@ count:
 counts:
 	make pass | grep 'could not be' | sed 's/.*`//' | sed "s/'.*//" | sort | uniq -c | sort -n
 
-monomac.dll: $(SOURCES) generated_sources $(MONOMAC_SOURCES) $(SHARED_SOURCES) $(SHARED_CORE_SOURCES)
-	gmcs -nowarn:0414,$(WARNINGS_I_SHOULD_FIX) -debug -unsafe $(SOURCES) @generated_sources $(MONOMAC_SOURCES) $(SHARED_SOURCES) $(SHARED_CORE_SOURCES) -target:library -define:GENERATOR -define:MONOMAC -out:monomac.dll -r:System.Drawing
+MonoMac.dll: $(SOURCES) generated_sources $(MONOMAC_SOURCES) $(SHARED_SOURCES) $(SHARED_CORE_SOURCES)
+	gmcs -nowarn:0414,$(WARNINGS_I_SHOULD_FIX) -debug -unsafe $(SOURCES) @generated_sources $(MONOMAC_SOURCES) $(SHARED_SOURCES) $(SHARED_CORE_SOURCES) -target:library -define:GENERATOR -define:MONOMAC -out:MonoMac.dll -r:System.Drawing
 
 clean:
 	rm -f $(TARGETS) core.dll
 
-all: monomac.dll
+all: MonoMac.dll

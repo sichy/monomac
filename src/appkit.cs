@@ -1638,7 +1638,7 @@ namespace MonoMac.AppKit {
 		NSAttributedString AttributedAlternateTitle  { get; set; }
 
 		[Export ("bezelStyle")]
-		NSBezelStyle BezelStyle { get; }
+		NSBezelStyle BezelStyle { get; set; }
 
 		[Export ("allowsMixedState")]
 		bool AllowsMixedState { get; }
@@ -4866,7 +4866,7 @@ namespace MonoMac.AppKit {
 		NSMenu Supermenu { get; set; }
 
 		[Export ("autoenablesItems")]
-		bool AutoenablesItems { get; set; }
+		bool AutoEnablesItems { get; set; }
 
 		[Export ("delegate")]
 		NSObject WeakDelegate { get; set; }
@@ -5023,6 +5023,12 @@ namespace MonoMac.AppKit {
 
 	[BaseType (typeof (NSButtonCell))]
 	interface NSMenuItemCell {
+		[Export ("initTextCell:")]
+		IntPtr Constructor (string aString);
+	
+		[Export ("initImageCell:")]
+		IntPtr Constructor (NSImage  image);
+
 		[Export ("calcSize")]
 		void CalcSize ();
 
@@ -7095,10 +7101,139 @@ namespace MonoMac.AppKit {
 		bool PullsDown { get; set; }
 
 		[Export ("autoenablesItems")]
+		bool AutoEnablesItems { get; set; }
+
+		[Export ("preferredEdge")]
+		NSRectEdge PreferredEdge { get; set; }
+
+	}
+
+
+	[BaseType (typeof (NSMenuItemCell))]
+	interface NSPopUpButtonCell {
+		[Export ("initTextCell:")]
+		IntPtr Constructor (string aString);
+	
+		[Export ("initImageCell:")]
+		IntPtr Constructor (NSImage  image);
+
+		[Export ("initTextCell:pullsDown:")]
+		IntPtr Constructor (string stringValue, bool pullDown);
+
+		[Export ("addItemWithTitle:")]
+		void AddItem (string title);
+
+		[Export ("addItemsWithTitles:")]
+		void AddItems (string [] itemTitles);
+
+		[Export ("insertItemWithTitle:atIndex:")]
+		void InsertItem (string title, int index);
+
+		[Export ("removeItemWithTitle:")]
+		void RemoveItem (string title);
+
+		[Export ("removeItemAtIndex:")]
+		void RemoveItemAt (int index);
+
+		[Export ("removeAllItems")]
+		void RemoveAllItems ();
+
+		[Export ("itemArray")]
+		NSMenuItem [] Items { get; }
+
+		[Export ("numberOfItems")]
+		int Count { get; }
+
+		[Export ("indexOfItem:")]
+		int IndexOf (NSMenuItem item);
+
+		[Export ("indexOfItemWithTitle:")]
+		int IndexOfItemWithTitle (string title);
+
+		[Export ("indexOfItemWithTag:")]
+		int IndexOfItemWithTag (int tag);
+
+		[Export ("indexOfItemWithRepresentedObject:")]
+		int IndexOfItemWithRepresentedObject (NSObject obj);
+
+		[Export ("indexOfItemWithTarget:andAction:")]
+		int IndexOfItemWithTargetandAction (NSObject target, Selector actionSelector);
+
+		[Export ("itemAtIndex:")]
+		NSMenuItem ItemAt (int index);
+
+		[Export ("itemWithTitle:")]
+		NSMenuItem ItemWithTitle (string title);
+
+		[Export ("lastItem")]
+		NSMenuItem LastItem { get; }
+
+		[Export ("selectItem:")]
+		void SelectItem (NSMenuItem item);
+
+		[Export ("selectItemAtIndex:")]
+		void SelectItemAt (int index);
+
+		[Export ("selectItemWithTitle:")]
+		void SelectItemWithTitle (string title);
+
+		[Export ("selectItemWithTag:")]
+		bool SelectItemWithTag (int tag);
+
+		[Export ("setTitle:")]
+		void SetTitle (string aString);
+
+		[Export ("selectedItem")]
+		NSMenuItem SelectedItem { get; }
+
+		[Export ("indexOfSelectedItem")]
+		int SelectedItemIndex { get; }
+
+		[Export ("synchronizeTitleAndSelectedItem")]
+		void SynchronizeTitleAndSelectedItem ();
+
+		[Export ("itemTitleAtIndex:")]
+		string GetItemTitle (int index);
+
+		[Export ("itemTitles")]
+		string [] ItemTitles { get; }
+
+		[Export ("titleOfSelectedItem")]
+		string TitleOfSelectedItem { get; }
+
+		[Export ("attachPopUpWithFrame:inView:")]
+		void AttachPopUp (RectangleF cellFrame, NSView inView);
+
+		[Export ("dismissPopUp")]
+		void DismissPopUp ();
+
+		[Export ("performClickWithFrame:inView:")]
+		void PerformClick (RectangleF withFrame, NSView controlView);
+
+		//Detected properties
+		[Export ("menu")]
+		NSMenu Menu { get; set; }
+
+		[Export ("pullsDown")]
+		bool PullsDown { get; set; }
+
+		[Export ("autoenablesItems")]
 		bool AutoenablesItems { get; set; }
 
 		[Export ("preferredEdge")]
 		NSRectEdge PreferredEdge { get; set; }
+
+		[Export ("usesItemFromMenu")]
+		bool UsesItemFromMenu { get; set; }
+
+		[Export ("altersStateOfSelectedItem")]
+		bool AltersStateOfSelectedItem { get; set; }
+
+		[Export ("arrowPosition")]
+		NSPopUpArrowPosition ArrowPosition { get; set; }
+
+		[Export ("objectValue")]
+		NSObject ObjectValue { get; set; }
 
 	}
 
@@ -8992,7 +9127,7 @@ namespace MonoMac.AppKit {
 		[Export ("lockFocusIfCanDrawInContext:")]
 		bool LockFocusIfCanDrawInContext (NSGraphicsContext context);
 
-		[Export ("focusView")]
+		[Export ("focusView")][Static]
 		NSView FocusView ();
 
 		[Export ("visibleRect")]
@@ -9324,7 +9459,7 @@ namespace MonoMac.AppKit {
 	[BaseType (typeof (NSResponder))]
 	interface NSViewController {
 		[Export ("initWithNibName:bundle:")]
-		IntPtr Constructor (string nibNameOrNil, NSBundle nibBundleOrNil);
+		IntPtr Constructor ([NullAllowed] string nibNameOrNil, [NullAllowed] NSBundle nibBundleOrNil);
 
 		[Export ("loadView")]
 		void LoadView ();
@@ -9605,7 +9740,7 @@ namespace MonoMac.AppKit {
 		[Wrap ("WeakDelegate")][NullAllowed]
 		NSTableViewDelegate Delegate { get; set; }
 	
-		[Export ("headerView")]
+		[Export ("headerView"), NullAllowed]
 		NSTableHeaderView HeaderView { get; set; }
 	
 		[Export ("cornerView")]
@@ -12524,129 +12659,11 @@ namespace MonoMac.AppKit {
 	
 	}	
 
-[BaseType (typeof (NSMenuItemCell))]
-	interface NSPopUpButtonCell {
-		[Export ("initTextCell:pullsDown:")]
-		NSObject InitTextCellpullsDown (string stringValue, bool pullDown);
-
-		[Export ("addItemWithTitle:")]
-		void AddItemWithTitle (string title);
-
-		[Export ("addItemsWithTitles:")]
-		void AddItemsWithTitles (NSArray itemTitles);
-
-		[Export ("insertItemWithTitle:atIndex:")]
-		void InsertItemWithTitleatIndex (string title, int index);
-
-		[Export ("removeItemWithTitle:")]
-		void RemoveItemWithTitle (string title);
-
-		[Export ("removeItemAtIndex:")]
-		void RemoveItemAtIndex (int index);
-
-		[Export ("removeAllItems")]
-		void RemoveAllItems ();
-
-		[Export ("itemArray")]
-		NSArray ItemArray ();
-
-		[Export ("numberOfItems")]
-		int NumberOfItems ();
-
-		[Export ("indexOfItem:")]
-		int IndexOfItem (NSMenuItem item);
-
-		[Export ("indexOfItemWithTitle:")]
-		int IndexOfItemWithTitle (string title);
-
-		[Export ("indexOfItemWithTag:")]
-		int IndexOfItemWithTag (int tag);
-
-		[Export ("indexOfItemWithRepresentedObject:")]
-		int IndexOfItemWithRepresentedObject (NSObject obj);
-
-		[Export ("indexOfItemWithTarget:andAction:")]
-		int IndexOfItemWithTargetandAction (NSObject target, Selector actionSelector);
-
-		[Export ("itemAtIndex:")]
-		NSMenuItem ItemAtIndex (int index);
-
-		[Export ("itemWithTitle:")]
-		NSMenuItem ItemWithTitle (string title);
-
-		[Export ("lastItem")]
-		NSMenuItem LastItem ();
-
-		[Export ("selectItem:")]
-		void SelectItem (NSMenuItem item);
-
-		[Export ("selectItemAtIndex:")]
-		void SelectItemAtIndex (int index);
-
-		[Export ("selectItemWithTitle:")]
-		void SelectItemWithTitle (string title);
-
-		[Export ("selectItemWithTag:")]
-		bool SelectItemWithTag (int tag);
-
-		[Export ("setTitle:")]
-		void SetTitle (string aString);
-
-		[Export ("selectedItem")]
-		NSMenuItem SelectedItem ();
-
-		[Export ("indexOfSelectedItem")]
-		int IndexOfSelectedItem ();
-
-		[Export ("synchronizeTitleAndSelectedItem")]
-		void SynchronizeTitleAndSelectedItem ();
-
-		[Export ("itemTitleAtIndex:")]
-		string ItemTitleAtIndex (int index);
-
-		[Export ("itemTitles")]
-		NSArray ItemTitles ();
-
-		[Export ("titleOfSelectedItem")]
-		string TitleOfSelectedItem ();
-
-		[Export ("attachPopUpWithFrame:inView:")]
-		void AttachPopUpWithFrameinView (RectangleF cellFrame, NSView controlView);
-
-		[Export ("dismissPopUp")]
-		void DismissPopUp ();
-
-		[Export ("performClickWithFrame:inView:")]
-		void PerformClickWithFrameinView (RectangleF frame, NSView controlView);
-
-		//Detected properties
-		[Export ("menu")]
-		NSMenu Menu { get; set; }
-
-		[Export ("pullsDown")]
-		bool PullsDown { get; set; }
-
-		[Export ("autoenablesItems")]
-		bool AutoenablesItems { get; set; }
-
-		[Export ("preferredEdge")]
-		NSRectEdge PreferredEdge { get; set; }
-
-		[Export ("usesItemFromMenu")]
-		bool UsesItemFromMenu { get; set; }
-
-		[Export ("altersStateOfSelectedItem")]
-		bool AltersStateOfSelectedItem { get; set; }
-
-		[Export ("arrowPosition")]
-		NSPopUpArrowPosition ArrowPosition { get; set; }
-
-		[Export ("objectValue")]
-		NSObject ObjectValue { get; set; }
-	}
-
 	[BaseType (typeof (NSControl))]
 	interface NSStepper {
+		[Export ("initWithFrame:")]
+		IntPtr Constructor (RectangleF frameRect);
+
 		//Detected properties
 		[Export ("minValue")]
 		double MinValue { get; set; }

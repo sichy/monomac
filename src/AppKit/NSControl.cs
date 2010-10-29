@@ -32,38 +32,25 @@ using MonoMac.Foundation;
 namespace MonoMac.AppKit {
 
 	public partial class NSControl {
-		const string skey = "__monomac_nscontrol_activated";
-		static Selector myTarget = new Selector (skey);
-
-		internal class MonoMacControlDispatcher : NSObject {
-			internal NSControl Host;
-			internal EventHandler activated;
-			
-			[Export (skey)]
-			public void ControlActivated ()
-			{
-				if (activated != null)
-					activated (Host, EventArgs.Empty);
-			}
-		}
 		
 		public event EventHandler Activated {
 			add {
-				var ctarget = Target as MonoMacControlDispatcher;
-				if (ctarget == null){
-					Target = ctarget = new MonoMacControlDispatcher ();
-					ctarget.Host = this;
+				var ctarget = Target as ActionDispatcher;
+				if (ctarget == null) {
+					Target = ctarget = new ActionDispatcher ();
+					Action = ActionDispatcher.Action;
 				}
-				Action = myTarget;
-				ctarget.activated += value;
+				ctarget.Activated += value;
 			}
 
 			remove {
-				var ctarget = Target as MonoMacControlDispatcher;
+				var ctarget = Target as ActionDispatcher;
 				if (ctarget != null){
-					ctarget.activated -= value;
-					if (ctarget == null)
+					ctarget.Activated -= value;
+					if (ctarget == null) {
 						Action = null;
+						Target = null;
+					}
 				}
 			}
 		}
