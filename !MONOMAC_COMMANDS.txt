@@ -1,0 +1,5 @@
+mono /Users/pavelsich/Projects/monomac/src/parse.exe /System/Library/Frameworks/AppKit.framework/Versions/C/Headers/NSImage.h
+
+cd /Users/pavelsich/Projects/monomac/src/
+
+make
